@@ -181,7 +181,7 @@ class RRConnection():
         self.sendAnswer("GETACTIVESTATUS;ERROR")
 
     def PASSINGS(self, s):
-        self.sendAnswer("PASSINGS;{};1".format(len(self._allPassings))
+        self.sendAnswer("PASSINGS;{};1".format(len(self._allPassings)))
 
     def SETPUSHPASSINGS(self, s):
         parts = s.split(";")
