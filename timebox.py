@@ -35,7 +35,7 @@ class IdMapper:
         for oneLine in content:
             splitted = oneLine.split(',')
             if (len(splitted) == 2):
-                rrConnection.addPassing(splitted[0], datetime.datetime.now().strftime("%Y-%m-%d"), splitted[1])
+                rrConnection.addPassing(splitted[0], datetime.datetime.now().strftime("%Y-%m-%d"), splitted[1].strip())
             else:
                 print("Malformed line in result: {}".format(oneLine), file=sys.stderr)
 
