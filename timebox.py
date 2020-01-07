@@ -10,8 +10,8 @@ from RRConnection import RRConnection
 
 class IdMapper:
     def __init__(self):
-        self.mapFile = "/home/pi/wiegand/map.txt"
-        self.outFile = "/home/pi/wiegand/out.txt"
+        self.mapFile = "/home/pi/timebox/map.txt"
+        self.outFile = "/home/pi/timebox/out.txt"
         self.backupFile = "/boot/out.txt"
 
     def readFile(self):
@@ -29,7 +29,7 @@ class IdMapper:
 
     def run(self):
         self.readFile()
-        proc = subprocess.Popen(['/home/pi/wiegand/wiegand_rpi'], stdout=subprocess.PIPE)
+        proc = subprocess.Popen(['/home/pi/timebox/wiegand_rpi'], stdout=subprocess.PIPE)
         rr = RRConnection()
         rr.start()
 
