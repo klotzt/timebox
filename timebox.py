@@ -34,7 +34,7 @@ class IdMapper:
         rr.start()
 
         while True:
-            line = proc.stdout.readline().strip()
+            line = proc.stdout.readline().strip().decode()
             value = line.split(',')
             if (len(value) == 2):
                 transponder = value[0]
