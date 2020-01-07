@@ -47,7 +47,7 @@ class RRConnection():
                     getattr(self, f[0].strip())(oneCmd)
                 elif ":" in oneCmd:
                     numbers = oneCmd.split(':')
-                    self.sendPassings(int(numbers[0], int(numbers[1])))
+                    self.sendPassings(int(numbers[0]), int(numbers[1]))
                 elif oneCmd.isdigit():
                     self.sendPassings(int(oneCmd), 1)
                 else:
