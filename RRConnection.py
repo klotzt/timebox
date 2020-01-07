@@ -97,8 +97,9 @@ class RRConnection():
     def sendPassings(self, number, count):
         if number+count>len(self._allPassings):
             self.sendAnswer("ONLY {}".format(len(self._allPassings)))
-        for i in range(number, number + count):
-            self.sendAnswer(self._allPassings[i])
+        else:
+            for i in range(number, number + count):
+                self.sendAnswer(self._allPassings[i])
 
     def SETPROTOCOL(self, str):
         print("Set protocol: {}".format(str))
