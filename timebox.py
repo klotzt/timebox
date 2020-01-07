@@ -35,22 +35,23 @@ class IdMapper:
 
         while True:
             line = proc.stdout.readline().strip().decode()
-            value = line.split(',')
-            if (len(value) == 2):
-                transponder = value[0]
-                time = value[1]
-                if transponder in self.masterMap:
-                    mapped_id = self.masterMap[transponder]
+            if len(line.strip()) > 0:
+                value = line.split(',')
+                if (len(value) == 2):
+                    transponder = value[0]
+                    time = value[1]
+                    if transponder in self.masterMap:
+                        mapped_id = self.masterMap[transponder]
+                    else:
+                        mapped_id = transponder
+                    rr.addPassing(mapped_id, datetime.datetime.now().strftime("%Y-%m-%d"), time)
+                    with open(self.outFile, "a+") as out_file:
+                        outStr = "{},{}\n".format(mapped_id, time)
+                        print("Found transponder: {}".format(outStr))
+                        out_file.write(outStr)
+                    copyfile(self.outFile, self.backupFile)
                 else:
-                    mapped_id = transponder
-                rr.addPassing(mapped_id, datetime.datetime.now().strftime("%Y-%m-%d"), time)
-                with open(self.outFile, "a+") as out_file:
-                    outStr = "{},{}\n".format(mapped_id, time)
-                    print("Found transponder: {}".format(outStr))
-                    out_file.write(outStr)
-                copyfile(self.outFile, self.backupFile)
-            else:
-                print >> sys.stderr, "Malformed input: {}".format(line)
+                    print >> sys.stderr, "Malformed input: {}".format(line)
             new_stamp = os.stat(self.mapFile).st_mtime
             if (new_stamp != self.stamp):
                 self.readFile()
