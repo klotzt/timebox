@@ -44,7 +44,10 @@ class IdMapper:
         proc = subprocess.Popen(['/home/pi/timebox/wiegand_rpi'], stdout=subprocess.PIPE)
         rr = RRConnection()
         # read previous passings into RR adapter...
-        self.readPrevious(rr)
+        try:
+            self.readPrevious(rr)
+        finally:
+            pass
         rr.start()
 
         while True:
