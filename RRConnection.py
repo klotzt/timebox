@@ -95,10 +95,10 @@ class RRConnection():
             self.sendAnswer("#P;{}".format(entry))
 
     def sendPassings(self, number, count):
-        if number+count>len(self._allPassings):
+        if number+count-1>len(self._allPassings):
             self.sendAnswer("ONLY {}".format(len(self._allPassings)))
         else:
-            for i in range(number, number + count):
+            for i in range(number-1, number + count -1):
                 self.sendAnswer(self._allPassings[i])
 
     def SETPROTOCOL(self, str):
