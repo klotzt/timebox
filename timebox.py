@@ -46,8 +46,8 @@ class IdMapper:
         # read previous passings into RR adapter...
         try:
             self.readPrevious(rr)
-        finally:
-            pass
+        except FileNotFoundError:
+            print ("No previous result file, ignoring")
         rr.start()
 
         while True:
