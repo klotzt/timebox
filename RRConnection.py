@@ -13,7 +13,6 @@ class RRConnection():
         self._notify = False
         self._allPassings = []
 
-
     def start(self):
         print("Starting thread for in-loop")
         self._inThread.start()
@@ -78,7 +77,14 @@ class RRConnection():
         FileNumber = "1"
         MaxRSSIAntenna = "1"
         BoxId = "1"
-        entry = f"{PassingNo};{Bib};{Date};{Time};{EventID};{Hits};{MaxRSSI};{InternalData};{IsActive};{Channel};{LoopID};{LoopOnly};{WakeupCounter};{Battery};{Temperature};{InternalActiveData};{BoxName};{FileNumber};{MaxRSSIAntenna};{BoxId}"
+        # entry = f"{PassingNo};{Bib};{Date};{Time};{EventID};{Hits};{MaxRSSI};{InternalData};{IsActive};{Channel};{LoopID};{LoopOnly};{WakeupCounter};{Battery};{Temperature};{InternalActiveData};{BoxName};{FileNumber};{MaxRSSIAntenna};{BoxId}"
+        entry = "{};{};{};{};{};{};{};{};{};{};{};{};{};{};{};{};{};{};{};{}".format(PassingNo, Bib, Date, Time,
+                                                                                     EventID, Hits, MaxRSSI,
+                                                                                     InternalData, IsActive, Channel,
+                                                                                     LoopID, LoopOnly, WakeupCounter,
+                                                                                     Battery, Temperature,
+                                                                                     InternalActiveData, BoxName,
+                                                                                     FileNumber, MaxRSSIAntenna, BoxId)
         self._allPassings.append(entry)
         if self._notify:
             self.sendAnswer(f"#P;{entry}")
