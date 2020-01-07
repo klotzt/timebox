@@ -12,12 +12,12 @@
 
 case "$1" in
   start)
-    echo "Starting example"
+    echo "Starting timebox service"
     # run application you want to start
-    /home/pi/wiegand/timebox.py &
+    /home/pi/timebox/timebox.py &
     ;;
   stop)
-    echo "Stopping example"
+    echo "Stopping timebox service"
     # kill application you want to stop
     pkill timebox.py
     ;;

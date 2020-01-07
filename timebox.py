@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import datetime
 import os
 import subprocess
@@ -46,7 +46,7 @@ class IdMapper:
                 rr.addPassing(mapped_id, datetime.now().strftime("%Y-%m-%d"), time)
                 with open(self.outFile, "a+") as out_file:
                     outStr = "{},{}\n".format(mapped_id, time)
-                    print(f"Found transponder: {outStr}")
+                    print("Found transponder: {}".format(outStr))
                     out_file.write(outStr)
                 copyfile(self.outFile, self.backupFile)
             else:
