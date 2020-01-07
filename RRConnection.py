@@ -47,9 +47,9 @@ class RRConnection():
                     getattr(self, f[0].strip())(oneCmd)
                 elif ":" in oneCmd:
                     numbers = oneCmd.split(':')
-                    sendPassings(int(numbers[0], int(numbers[1])))
+                    self.sendPassings(int(numbers[0], int(numbers[1])))
                 elif oneCmd.isdigit():
-                    sendPassings(int(oneCmd), 1)
+                    self.sendPassings(int(oneCmd), 1)
                 else:
                     print("Function {} not known".format(f[0]))
 
