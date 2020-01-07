@@ -21,16 +21,30 @@ class IdMapper:
             content = f.readlines()
 
         for oneLine in content:
-            splitted = oneLine.split('\t')
+            if len(oneLine.strip())>0:
+                splitted = oneLine.split('\t')
+                if (len(splitted) == 2):
+                    self.masterMap[splitted[0]] = splitted[1].strip()
+                else:
+                    print("Malformed line in mapfile: {}".format(oneLine), file=sys.stderr)
+
+    def readPrevious(self, rrConnection):
+        with open(self.outFile) as f:
+            content = f.readlines()
+
+        for oneLine in content:
+            splitted = oneLine.split(',')
             if (len(splitted) == 2):
-                self.masterMap[splitted[0]] = splitted[1].strip()
+                rrConnection.addPassing(splitted[0], datetime.datetime.now().strftime("%Y-%m-%d"), splitted[1])
             else:
-                print ("Malformed line: {}".format(oneLine), file=sys.stderr)
+                print("Malformed line in result: {}".format(oneLine), file=sys.stderr)
 
     def run(self):
         self.readFile()
         proc = subprocess.Popen(['/home/pi/timebox/wiegand_rpi'], stdout=subprocess.PIPE)
         rr = RRConnection()
+        # read previous passings into RR adapter...
+        self.readPrevious(rr)
         rr.start()
 
         while True:
@@ -51,7 +65,7 @@ class IdMapper:
                         out_file.write(outStr)
                     copyfile(self.outFile, self.backupFile)
                 else:
-                    print >> sys.stderr, "Malformed input: {}".format(line)
+                    print >> sys.stderr, "Malformed line in wiegand output: {}".format(line)
             new_stamp = os.stat(self.mapFile).st_mtime
             if (new_stamp != self.stamp):
                 self.readFile()
