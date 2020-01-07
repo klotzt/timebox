@@ -43,7 +43,7 @@ class IdMapper:
                     mapped_id = self.masterMap[transponder]
                 else:
                     mapped_id = transponder
-                rr.addPassing(mapped_id, datetime.now().strftime("%Y-%m-%d"), time)
+                rr.addPassing(mapped_id, datetime.datetime.now().strftime("%Y-%m-%d"), time)
                 with open(self.outFile, "a+") as out_file:
                     outStr = "{},{}\n".format(mapped_id, time)
                     print("Found transponder: {}".format(outStr))
