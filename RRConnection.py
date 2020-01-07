@@ -13,7 +13,6 @@ class RRConnection():
         self._notify = False
         self._allPassings = []
 
-
     def start(self):
         print("Starting thread for in-loop")
         self._inThread.start()
@@ -46,6 +45,11 @@ class RRConnection():
                 f = oneCmd.split(';')
                 if hasattr(self, f[0].strip()):
                     getattr(self, f[0].strip())(oneCmd)
+                elif ":" in oneCmd:
+                    numbers = oneCmd.split(':')
+                    self.sendPassings(int(numbers[0]), int(numbers[1]))
+                elif oneCmd.isdigit():
+                    self.sendPassings(int(oneCmd), 1)
                 else:
                     print("Function {} not known".format(f[0]))
 
@@ -78,10 +82,24 @@ class RRConnection():
         FileNumber = "1"
         MaxRSSIAntenna = "1"
         BoxId = "1"
-        entry = f"{PassingNo};{Bib};{Date};{Time};{EventID};{Hits};{MaxRSSI};{InternalData};{IsActive};{Channel};{LoopID};{LoopOnly};{WakeupCounter};{Battery};{Temperature};{InternalActiveData};{BoxName};{FileNumber};{MaxRSSIAntenna};{BoxId}"
+        # entry = f"{PassingNo};{Bib};{Date};{Time};{EventID};{Hits};{MaxRSSI};{InternalData};{IsActive};{Channel};{LoopID};{LoopOnly};{WakeupCounter};{Battery};{Temperature};{InternalActiveData};{BoxName};{FileNumber};{MaxRSSIAntenna};{BoxId}"
+        entry = "{};{};{};{};{};{};{};{};{};{};{};{};{};{};{};{};{};{};{};{}".format(PassingNo, Bib, Date, Time,
+                                                                                     EventID, Hits, MaxRSSI,
+                                                                                     InternalData, IsActive, Channel,
+                                                                                     LoopID, LoopOnly, WakeupCounter,
+                                                                                     Battery, Temperature,
+                                                                                     InternalActiveData, BoxName,
+                                                                                     FileNumber, MaxRSSIAntenna, BoxId)
         self._allPassings.append(entry)
         if self._notify:
-            self.sendAnswer(f"#P;{entry}")
+            self.sendAnswer("#P;{}".format(entry))
+
+    def sendPassings(self, number, count):
+        if number+count-1>len(self._allPassings):
+            self.sendAnswer("ONLY {}".format(len(self._allPassings)))
+        else:
+            for i in range(number-1, number + count -1):
+                self.sendAnswer(self._allPassings[i])
 
     def SETPROTOCOL(self, str):
         print("Set protocol: {}".format(str))
@@ -116,8 +134,33 @@ class RRConnection():
         ScheduledStandbyEnabled = "0"
         IsInStandby = "0"
         ErrorFlags = "0"
+        # self.sendAnswer(
+        #    f"GETSTATUS;{Date};{Time};{HasPower};{Antennas};{IsInOperationMode};{FileNumber};{GPSHasFix};{Latitude},{Longitude};{ReaderIsHealthy};{BatteryCharge};{BoardTemperature};{ReaderTemperature};{UHFFrequency};{ActiveExtConnected};{Channel};{LoopID};{LoopPower};{LoopConnected};{LoopUnderPower};{TimeIsRunning};{TimeSource};{ScheduledStandbyEnabled};{IsInStandby};{ErrorFlags}")
         self.sendAnswer(
-            f"GETSTATUS;{Date};{Time};{HasPower};{Antennas};{IsInOperationMode};{FileNumber};{GPSHasFix};{Latitude},{Longitude};{ReaderIsHealthy};{BatteryCharge};{BoardTemperature};{ReaderTemperature};{UHFFrequency};{ActiveExtConnected};{Channel};{LoopID};{LoopPower};{LoopConnected};{LoopUnderPower};{TimeIsRunning};{TimeSource};{ScheduledStandbyEnabled};{IsInStandby};{ErrorFlags}")
+            "GETSTATUS;{};{};{};{};{};{};{};{},{};{};{};{};{};{};{};{};{};{};{};{};{};{};{};{};{}".format(Date, Time,
+                                                                                                          HasPower,
+                                                                                                          Antennas,
+                                                                                                          IsInOperationMode,
+                                                                                                          FileNumber,
+                                                                                                          GPSHasFix,
+                                                                                                          Latitude,
+                                                                                                          Longitude,
+                                                                                                          ReaderIsHealthy,
+                                                                                                          BatteryCharge,
+                                                                                                          BoardTemperature,
+                                                                                                          ReaderTemperature,
+                                                                                                          UHFFrequency,
+                                                                                                          ActiveExtConnected,
+                                                                                                          Channel,
+                                                                                                          LoopID,
+                                                                                                          LoopPower,
+                                                                                                          LoopConnected,
+                                                                                                          LoopUnderPower,
+                                                                                                          TimeIsRunning,
+                                                                                                          TimeSource,
+                                                                                                          ScheduledStandbyEnabled,
+                                                                                                          IsInStandby,
+                                                                                                          ErrorFlags))
 
     def GETCONFIG(self, s):
         parts = s.split(";")
@@ -150,7 +193,7 @@ class RRConnection():
         self.sendAnswer("GETACTIVESTATUS;ERROR")
 
     def PASSINGS(self, s):
-        self.sendAnswer(f"PASSINGS;{len(self._allPassings)};1")
+        self.sendAnswer("PASSINGS;{};1".format(len(self._allPassings)))
 
     def SETPUSHPASSINGS(self, s):
         parts = s.split(";")

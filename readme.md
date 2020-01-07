@@ -7,6 +7,7 @@ In addition it serves as a server to the Raceresult software (see https://www.ra
 ## Components
 - timboxd
 Daemon file to autotstart the scripts upon boot
+Copy to /etc/init.d and change mode to executable
 - Makefile+wiegand_rpi.c
 Sourcefile for interfacing with wiegand RFID readers
 - timebox.py
@@ -14,5 +15,7 @@ Python script to get it all together
 
 ## Building wiegand interface
 - just call make in this dir
-- make sure you have wiring pi library installed first
+- make sure you have wiring pi library installed first (default installed on raspbian): http://wiringpi.com/ or https://github.com/WiringPi/WiringPi
+
+
 
