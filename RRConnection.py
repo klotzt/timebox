@@ -45,6 +45,11 @@ class RRConnection():
                 f = oneCmd.split(';')
                 if hasattr(self, f[0].strip()):
                     getattr(self, f[0].strip())(oneCmd)
+                elif ":" in oneCmd:
+                    numbers = oneCmd.split(':')
+                    sendPassings(int(numbers[0], int(numbers[1])))
+                elif oneCmd.isdigit():
+                    sendPassings(int(oneCmd), 1)
                 else:
                     print("Function {} not known".format(f[0]))
 
@@ -88,6 +93,10 @@ class RRConnection():
         self._allPassings.append(entry)
         if self._notify:
             self.sendAnswer("#P;{}".format(entry))
+
+    def sendPassings(self, number, count):
+        for i in range(number, number + count):
+            self.sendAnswer(self._allPassings[i])
 
     def SETPROTOCOL(self, str):
         print("Set protocol: {}".format(str))
