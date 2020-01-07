@@ -25,7 +25,7 @@ class IdMapper:
             if (len(splitted) == 2):
                 self.masterMap[splitted[0]] = splitted[1].strip()
             else:
-                print >> sys.stderr, "Malformed line: {}".format(oneLine)
+                print ("Malformed line: {}".format(oneLine), file=sys.stderr)
 
     def run(self):
         self.readFile()
