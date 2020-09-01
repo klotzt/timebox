@@ -2,6 +2,7 @@ import socket
 import sys
 from datetime import datetime
 from threading import Thread
+import logging
 
 
 class RRConnection():
@@ -14,7 +15,7 @@ class RRConnection():
         self._allPassings = []
 
     def start(self):
-        print("Starting thread for in-loop")
+        logging.debug("Starting thread for in-loop")
         self._inThread.start()
 
     def stop(self):
@@ -26,9 +27,9 @@ class RRConnection():
         self._listenerSocket.bind(('', 3601))
         self._listenerSocket.listen(1)
         while self._isRunning:
-            print("Starting listener socket on port 3601")
+            logging.debug("Starting listener socket on port 3601")
             self._inSock, addr = self._listenerSocket.accept()
-            print("Got connection from {}".format(addr))
+            logging.debug("Got connection from {}".format(addr))
             keepReceiving = True
             while keepReceiving:
                 received = self._inSock.recv(1024 * 1024)
@@ -41,7 +42,7 @@ class RRConnection():
         allCmd = cmd.strip().split("\r\n")
         for oneCmd in allCmd:
             if oneCmd.strip() != "":
-                print("Parsing command {}".format(oneCmd))
+                logging.debug("Parsing command {}".format(oneCmd))
                 f = oneCmd.split(';')
                 if hasattr(self, f[0].strip()):
                     getattr(self, f[0].strip())(oneCmd)
@@ -51,22 +52,22 @@ class RRConnection():
                 elif oneCmd.isdigit():
                     self.sendPassings(int(oneCmd), 1)
                 else:
-                    print("Function {} not known".format(f[0]))
+                    logging.debug("Function {} not known: {}".format(f[0],cmd))
 
     def sendAnswer(self, answer):
         if self._inSock:
-            print("Sending: {}".format(answer))
+            logging.debug("Sending: {}".format(answer))
             fullAnswer = answer + "\r\n"
             self._inSock.send(fullAnswer.encode())
         else:
-            print("Not connected!")
+            logging.debug("Not connected!")
 
     def addPassing(self, Bib, Date, Time):
         PassingNo = len(self._allPassings) + 1
         # Bib is param
         # Date
         # Time
-        EventID = ""
+        EventID = "143722"
         Hits = "1"
         MaxRSSI = "31"
         InternalData = ""
@@ -102,11 +103,11 @@ class RRConnection():
                 self.sendAnswer(self._allPassings[i])
 
     def SETPROTOCOL(self, str):
-        print("Set protocol: {}".format(str))
+        logging.debug("Set protocol: {}".format(str))
         self.sendAnswer("SETPROTOCOL;2.0")
 
     def GETSTATUS(self, str):
-        print("Get Status: {}".format(str))
+        logging.debug("Get Status: {}".format(str))
         # GETSTATUS;<Date>;<Time>;<HasPower>;<Antennas>;<IsInOperationMode>;<FileNumber>;<GPSHasFix>;<Latitude>,<Longitude>;<ReaderIsHealthy>;<BatteryCharge>;<BoardTemperature>;<ReaderTemperature>;<UHFFrequency>;<ActiveExtConnected>;[<Channel>];[<LoopID>];[<LoopPower>];[<LoopConnected>];[<LoopUnderPower>];<TimeIsRunning>;<TimeSource>;<ScheduledStandbyEnabled>;<IsInStandby>
         # GETSTATUS;0000-00-00;00:02:39.942;1;11111111;1;50;1;49.721,8.254939;1;0;;;;;;;1;0<CrLf>
         Date = datetime.now().strftime("%Y-%m-%d")
@@ -170,7 +171,7 @@ class RRConnection():
             elif parts[2] == "TIMEZONE":
                 self.sendAnswer(s.strip() + ";Europe/Amsterdam")
             else:
-                print("Unknown general request: {}".format(parts[2]))
+                logging.debug("Unknown general request: {}".format(parts[2]))
                 self.sendAnswer(s.strip() + ";ERROR")
         elif parts[1] == "DETECTION":
             if parts[2] == "DEADTIME":
@@ -180,10 +181,10 @@ class RRConnection():
             elif parts[2] == "NOTIFICATION":
                 self.sendAnswer(s.strip() + ";1")
             else:
-                print("Unknown detection request: {}".format(parts[2]))
+                logging.debug("Unknown detection request: {}".format(parts[2]))
                 self.sendAnswer(s.strip() + ";ERROR")
         else:
-            print("Unknown config category: {}".format(parts[1]))
+            logging.debug("Unknown config category: {}".format(parts[1]))
             self.sendAnswer(s.strip() + ";ERROR")
 
     def GETFIRMWAREVERSION(self, s):
@@ -212,11 +213,11 @@ if __name__ == '__main__':
     foo.start()
     while True:
         try:
-            print("You can enter new passings in the format <bib> (current time will be taken")
+            logging.debug("You can enter new passings in the format <bib> (current time will be taken")
             newEntry = int(input())
             newTime = datetime.now()
             foo.addPassing(newEntry, newTime.strftime("%Y-%m-%d"), newTime.strftime("%H:%M:%S.%f"))
         except KeyboardInterrupt:
-            print("Exiting...")
+            logging.debug("Exiting...")
             foo.stop()
             sys.exit(1)
