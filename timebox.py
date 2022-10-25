@@ -6,16 +6,19 @@ import sys
 from shutil import copyfile
 import logging
 from RRConnection import RRConnection
-
+from logging.handlers import RotatingFileHandler
 
 class IdMapper:
     def __init__(self):
-        logging.basicConfig(level=logging.DEBUG, filename='/home/pi/timebox/timebox.log', filemode='w', format='%(asctime)s - %(levelname)s - %(message)s')
+        self._log=logging.getLogger("timebox")
+        handler = RotatingFileHandler('/home/pi/timebox/time.log', maxBytes=2000, backupCount=10)
+        self._log.addHandler(handler)        
+        self._log.setLevel(logging.DEBUG)
         self.mapFile = "/home/pi/timebox/map.txt"
         suffix=datetime.now().strftime("%Y%m%d_%H%M%S")
         self.outFile = "/home/pi/timebox/out_{}.txt".format(suffix)
         self.backupFile = "/boot/out_{}.txt".format(suffix)
-        logging.debug("Logging to {}".format(self.outFile))
+        self._log.debug("Logging to {}".format(self.outFile))
 
     def readFile(self):
         self.masterMap = {}
@@ -29,7 +32,7 @@ class IdMapper:
                 if (len(splitted) == 2):
                     self.masterMap[splitted[0]] = splitted[1].strip()
                 else:
-                    logging.error("Malformed line in mapfile: {}".format(oneLine))
+                    self._log.error("Malformed line in mapfile: {}".format(oneLine))
 
     def readPrevious(self, rrConnection):
         with open(self.outFile) as f:
@@ -40,7 +43,7 @@ class IdMapper:
             if (len(splitted) == 2):
                 rrConnection.addPassing(splitted[0], datetime.now().strftime("%Y-%m-%d"), splitted[1].strip())
             else:
-                logging.error("Malformed line in result: {}".format(oneLine))
+                self._log.error("Malformed line in result: {}".format(oneLine))
 
     def run(self):
         self.readFile()
@@ -50,7 +53,7 @@ class IdMapper:
         try:
             self.readPrevious(rr)
         except FileNotFoundError:
-            logging.debug ("No previous result file, ignoring")
+            self._log.debug ("No previous result file, ignoring")
         rr.start()
 
         while True:
@@ -67,14 +70,14 @@ class IdMapper:
                     rr.addPassing(mapped_id, datetime.now().strftime("%Y-%m-%d"), time)
                     with open(self.outFile, "a+") as out_file:
                         outStr = "{},{}\n".format(mapped_id, time)
-                        logging.debug("Found transponder: {}".format(outStr))
+                        self._log.debug("Found transponder: {}".format(outStr))
                         out_file.write(outStr)
                     try:
                         copyfile(self.outFile, self.backupFile)
                     except PermissionError:
-                        logging.warning("Unable to backup outfile!")
+                        self._log.warning("Unable to backup outfile!")
                 else:
-                    logging.debug ("Malformed line in wiegand output: {}".format(line))
+                    self._log.debug ("Malformed line in wiegand output: {}".format(line))
             new_stamp = os.stat(self.mapFile).st_mtime
             if (new_stamp != self.stamp):
                 self.readFile()

@@ -29,14 +29,17 @@ class RRConnection():
         while self._isRunning:
             logging.debug("Starting listener socket on port 3601")
             self._inSock, addr = self._listenerSocket.accept()
-            logging.debug("Got connection from {}".format(addr))
-            keepReceiving = True
-            while keepReceiving:
-                received = self._inSock.recv(1024 * 1024)
-                if len(received) > 0:
-                    self.parseCommand(received.decode())
-                else:
-                    keepReceiving = False
+            try:
+              logging.debug("Got connection from {}".format(addr))
+              keepReceiving = True
+              while keepReceiving:
+                  received = self._inSock.recv(1024 * 1024)
+                  if len(received) > 0:
+                      self.parseCommand(received.decode())
+                  else:
+                      keepReceiving = False
+            except ConnectionResetError:
+              logging.debug ("Connection closed, retry")
 
     def parseCommand(self, cmd):
         allCmd = cmd.strip().split("\r\n")
@@ -58,7 +61,10 @@ class RRConnection():
         if self._inSock:
             logging.debug("Sending: {}".format(answer))
             fullAnswer = answer + "\r\n"
-            self._inSock.send(fullAnswer.encode())
+            try:
+              self._inSock.send(fullAnswer.encode())
+            except socket.error:
+              logging.debug("Send error!")
         else:
             logging.debug("Not connected!")
 
